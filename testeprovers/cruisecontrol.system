@@ -1,0 +1,54 @@
+% Only for Htab!
+% Automatic control system : 
+
+% 1.A car has 3 modes to navigate : off, on e semi.
+
+% 2.When the automatic control is off, the driver has full control. (i.e. brake,accel,steer)
+% 3.But when is on, the driver can't control the car. (i.e. no brake,accel,steer)
+% 4.When is semi, the driver can only steer.
+
+% 5.In any mode, the driver can press the off button.
+% 6.Only from off mode the driver can press on or semi button.
+% 7.We can't go from on to semi or vice-versa.
+
+signature {
+
+	propositions { can_brake, can_accel, can_steer }
+	nominals { modeOn, modeOff, modeSemi }
+	relations { chOn , chOff, chSemi, U : {universal} }
+
+}
+
+theory {
+
+  % Neste modo pode-se fazer tudo
+  modeOff : (can_brake & can_accel & can_steer);
+
+  % Neste modo pode-se fazer nada
+  modeOn : (!can_brake & !can_accel & !can_steer);
+
+  % Neste modo apenas se pode virar
+  modeSemi : (!can_brake & !can_accel & can_steer);
+ 
+  % Nao aceita diamantes !!!
+  % Todos os estados tem um caminho (chOff) para o modo Off.
+  [U](![chOff]!modeOff);
+  
+  % O modo Off tem um caminho (chOn) para o modo On.
+  modeOff:![chOn]!modeOn;
+
+  % O modo Off tem um caminho (chOff) para o mode Semi.
+  modeOff:![chSemi]!modeSemi;
+
+  % Nao ha caminho entre o modo On e o modo Semi
+  !(modeOn : (![chSemi]!modeSemi));
+  !(modeSemi : (![chOn]!modeOn));
+
+  % So podem existir os 3 modos referidos
+  [U](modeOff | modeOn | modeSemi);
+
+ % A partir do modo Off existe algum caminho para um modo
+ % onde se possa virar.
+  modeOff : ![U]!can_steer
+
+} 
